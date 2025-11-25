@@ -1,0 +1,5 @@
+{
+  "name": "CineRank AI",
+  "description": "An intelligent movie and TV show ranking engine powered by Gemini. Search for top-rated lists, specific genres, or complex queries like 'Top 20 South Park episodes' and get instant, accurate results grounded in real-world data.",
+  "requestFramePermissions": []
+}
