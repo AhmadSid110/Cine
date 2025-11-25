@@ -74,12 +74,15 @@ const App: React.FC = () => {
                 <p className="text-zinc-500 text-sm mb-3 font-medium uppercase tracking-wider">Verified Sources:</p>
                 <div className="flex flex-wrap gap-2">
                   {state.sources.map((source, idx) => (
-                    <span 
+                    <a 
                       key={idx} 
-                      className="px-3 py-1 bg-zinc-900/80 border border-zinc-800 rounded-full text-xs text-zinc-400 hover:text-zinc-200 hover:border-zinc-700 transition-colors"
+                      href={source.uri}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3 py-1 bg-zinc-900/80 border border-zinc-800 rounded-full text-xs text-zinc-400 hover:text-zinc-200 hover:border-zinc-700 transition-colors cursor-pointer"
                     >
-                      {source}
-                    </span>
+                      {source.title}
+                    </a>
                   ))}
                 </div>
               </div>

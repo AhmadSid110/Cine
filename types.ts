@@ -10,12 +10,17 @@ export interface MediaItem {
   source?: string; // e.g., "IMDb", "TMDB"
 }
 
+export interface Source {
+  title: string;
+  uri: string;
+}
+
 export interface SearchState {
   query: string;
   isLoading: boolean;
   data: MediaItem[] | null;
   error: string | null;
-  sources: string[];
+  sources: Source[];
 }
 
 export enum ViewMode {

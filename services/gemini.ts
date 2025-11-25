@@ -1,5 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
-import { MediaItem } from "../types.ts";
+import { MediaItem, Source } from "../types.ts";
 
 // Initialize Gemini Client
 // IMPORTANT: Expects process.env.API_KEY to be available.
@@ -25,7 +25,7 @@ Ensure the list strictly follows the user's quantity request (e.g., "Top 10").
 If the user asks for episodes (e.g., "Top South Park episodes"), include the Season and Episode number in the title or description.
 `;
 
-export const searchMedia = async (query: string): Promise<{ items: MediaItem[], sources: string[] }> => {
+export const searchMedia = async (query: string): Promise<{ items: MediaItem[], sources: Source[] }> => {
   try {
     const modelId = "gemini-2.5-flash"; // Using 2.5 Flash for speed and grounding capability
 
@@ -49,12 +49,15 @@ export const searchMedia = async (query: string): Promise<{ items: MediaItem[], 
     const text = response.text || "";
 
     // Extract Grounding Metadata (Sources)
-    const sources: string[] = [];
+    const sources: Source[] = [];
     const chunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks;
     if (chunks) {
       chunks.forEach((chunk) => {
         if (chunk.web?.uri) {
-          sources.push(chunk.web.title || new URL(chunk.web.uri).hostname);
+          sources.push({
+            title: chunk.web.title || new URL(chunk.web.uri).hostname,
+            uri: chunk.web.uri
+          });
         }
       });
     }
@@ -90,7 +93,10 @@ export const searchMedia = async (query: string): Promise<{ items: MediaItem[], 
       throw new Error("We found the info, but couldn't format it correctly. Please try again.");
     }
 
-    return { items, sources: [...new Set(sources)] }; // Unique sources
+    // Deduplicate sources based on URI
+    const uniqueSources = Array.from(new Map(sources.map(s => [s.uri, s])).values());
+
+    return { items, sources: uniqueSources };
 
   } catch (error) {
     console.error("Gemini Search Error:", error);
