@@ -1,10 +1,10 @@
 import React, { useState, useCallback } from 'react';
-import { SearchBar } from './components/SearchBar';
-import { MediaCard } from './components/MediaCard';
-import { Footer } from './components/Footer';
-import { searchMedia } from './services/gemini';
-import { MediaItem, SearchState } from './types';
-import { AlertCircle } from './components/icons';
+import { SearchBar } from './components/SearchBar.tsx';
+import { MediaCard } from './components/MediaCard.tsx';
+import { Footer } from './components/Footer.tsx';
+import { searchMedia } from './services/gemini.ts';
+import { MediaItem, SearchState } from './types.ts';
+import { AlertCircle } from './components/icons.tsx';
 
 const App: React.FC = () => {
   const [state, setState] = useState<SearchState>({

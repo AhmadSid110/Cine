@@ -1,5 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
-import { MediaItem } from "../types";
+import { MediaItem } from "../types.ts";
 
 // Initialize Gemini Client
 // IMPORTANT: Expects process.env.API_KEY to be available.

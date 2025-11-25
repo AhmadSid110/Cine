@@ -1,5 +1,5 @@
 import React, { useState, FormEvent } from 'react';
-import { SearchIcon, LoaderIcon } from './icons';
+import { SearchIcon, LoaderIcon } from './icons.tsx';
 
 interface SearchBarProps {
   onSearch: (query: string) => void;

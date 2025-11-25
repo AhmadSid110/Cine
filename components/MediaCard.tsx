@@ -1,6 +1,6 @@
 import React from 'react';
-import { MediaItem } from '../types';
-import { StarIcon, FilmIcon, TvIcon } from './icons';
+import { MediaItem } from '../types.ts';
+import { StarIcon, FilmIcon, TvIcon } from './icons.tsx';
 
 interface MediaCardProps {
   item: MediaItem;
