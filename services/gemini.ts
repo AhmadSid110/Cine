@@ -1,6 +1,14 @@
 import { GoogleGenAI } from "@google/genai";
 import { MediaItem, Source } from "../types.ts";
 
+// Declare process locally to satisfy TypeScript compiler immediately
+// This ensures the build passes even if global node types are not fully picked up by the app config
+declare const process: {
+  env: {
+    API_KEY: string;
+  }
+};
+
 // Initialize Gemini Client
 // IMPORTANT: Expects process.env.API_KEY to be available.
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
