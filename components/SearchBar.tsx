@@ -1,12 +1,13 @@
 import React, { useState, FormEvent } from 'react';
-import { SearchIcon, LoaderIcon } from './icons.tsx';
+import { SearchIcon, LoaderIcon, SettingsIcon } from './icons.tsx';
 
 interface SearchBarProps {
   onSearch: (query: string) => void;
   isLoading: boolean;
+  onOpenSettings: () => void;
 }
 
-export const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => {
+export const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading, onOpenSettings }) => {
   const [input, setInput] = useState('');
 
   const handleSubmit = (e: FormEvent) => {
@@ -25,6 +26,17 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => 
 
   return (
     <div className="w-full max-w-4xl mx-auto mb-12 px-4 pt-8">
+      {/* Settings Button - Positioned at top right */}
+      <div className="flex justify-end mb-4">
+        <button
+          onClick={onOpenSettings}
+          className="p-2.5 bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800 rounded-lg transition-colors group"
+          aria-label="Open settings"
+        >
+          <SettingsIcon className="w-5 h-5 text-zinc-400 group-hover:text-zinc-200 transition-colors" />
+        </button>
+      </div>
+
       <div className="text-center mb-10 animate-fade-in">
         <h1 className="text-5xl md:text-7xl font-bold text-white tracking-tight mb-4">
           CineRank <span className="text-accent">AI</span>

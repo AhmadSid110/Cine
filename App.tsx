@@ -1,9 +1,11 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { SearchBar } from './components/SearchBar.tsx';
 import { MediaCard } from './components/MediaCard.tsx';
 import { Footer } from './components/Footer.tsx';
-import { searchMedia } from './services/gemini.ts';
-import { MediaItem, SearchState } from './types.ts';
+import { Settings } from './components/Settings.tsx';
+import { searchMedia as searchWithGemini } from './services/gemini.ts';
+import { searchMedia as searchWithOpenAI } from './services/openai.ts';
+import { SearchState } from './types.ts';
 import { AlertCircle } from './components/icons.tsx';
 
 const App: React.FC = () => {
@@ -14,12 +16,54 @@ const App: React.FC = () => {
     error: null,
     sources: []
   });
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  // Load API keys and model selection from localStorage on init
+  const [geminiKey, setGeminiKey] = useState('');
+  const [openaiKey, setOpenaiKey] = useState('');
+  const [selectedModel, setSelectedModel] = useState<'gemini' | 'openai'>('gemini');
+
+  useEffect(() => {
+    const storedGeminiKey = localStorage.getItem('gemini_key') || '';
+    const storedOpenaiKey = localStorage.getItem('openai_key') || '';
+    const storedModel = localStorage.getItem('selected_model') as 'gemini' | 'openai' || 'gemini';
+    
+    setGeminiKey(storedGeminiKey);
+    setOpenaiKey(storedOpenaiKey);
+    setSelectedModel(storedModel);
+  }, []);
+
+  // Reload keys when settings modal closes
+  const handleSettingsClose = useCallback(() => {
+    setIsSettingsOpen(false);
+    
+    // Reload from localStorage
+    const storedGeminiKey = localStorage.getItem('gemini_key') || '';
+    const storedOpenaiKey = localStorage.getItem('openai_key') || '';
+    const storedModel = localStorage.getItem('selected_model') as 'gemini' | 'openai' || 'gemini';
+    
+    setGeminiKey(storedGeminiKey);
+    setOpenaiKey(storedOpenaiKey);
+    setSelectedModel(storedModel);
+  }, []);
 
   const handleSearch = useCallback(async (query: string) => {
     setState(prev => ({ ...prev, isLoading: true, error: null, query }));
     
     try {
-      const { items, sources } = await searchMedia(query);
+      // Check if the selected model's API key is available
+      if (selectedModel === 'gemini' && !geminiKey) {
+        throw new Error('Gemini API key is missing. Please add it in Settings.');
+      }
+      if (selectedModel === 'openai' && !openaiKey) {
+        throw new Error('OpenAI API key is missing. Please add it in Settings.');
+      }
+
+      // Route to appropriate service
+      const searchFn = selectedModel === 'gemini' ? searchWithGemini : searchWithOpenAI;
+      const apiKey = selectedModel === 'gemini' ? geminiKey : openaiKey;
+      
+      const { items, sources } = await searchFn(query, apiKey);
       setState({
         query,
         isLoading: false,
@@ -35,7 +79,7 @@ const App: React.FC = () => {
         error: err.message || "An unexpected error occurred."
       }));
     }
-  }, []);
+  }, [selectedModel, geminiKey, openaiKey]);
 
   return (
     <div className="min-h-screen bg-background text-zinc-100 selection:bg-zinc-700/30 font-sans">
@@ -45,7 +89,16 @@ const App: React.FC = () => {
       </div>
 
       <main className="relative z-10 container mx-auto px-4 py-8 min-h-screen flex flex-col">
-        <SearchBar onSearch={handleSearch} isLoading={state.isLoading} />
+        <SearchBar 
+          onSearch={handleSearch} 
+          isLoading={state.isLoading}
+          onOpenSettings={() => setIsSettingsOpen(true)}
+        />
+        
+        <Settings 
+          isOpen={isSettingsOpen} 
+          onClose={handleSettingsClose}
+        />
 
         {/* Error State */}
         {state.error && (

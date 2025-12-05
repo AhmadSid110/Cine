@@ -1,18 +1,17 @@
-import { GoogleGenAI } from "@google/genai";
-import { MediaItem, Source } from "../types.ts";
+import OpenAI from 'openai';
+import { MediaItem, Source } from '../types.ts';
 
-// Declare process locally to satisfy TypeScript compiler immediately
-// This ensures the build passes even if global node types are not fully picked up by the app config
+// Declare process locally to satisfy TypeScript compiler
 declare const process: {
   env: {
-    API_KEY?: string;
+    OPENAI_API_KEY?: string;
   }
 };
 
 const SYSTEM_INSTRUCTION = `
 You are CineRank, an expert film and TV database assistant.
 Your goal is to provide accurate, ranked lists of movies, TV shows, episodes, or anime based on the user's request.
-You MUST use the 'googleSearch' tool to find real-world ratings from reputable sources like IMDb, Rotten Tomatoes, TMDB, and MyAnimeList.
+You MUST search the web to find real-world ratings from reputable sources like IMDb, Rotten Tomatoes, TMDB, and MyAnimeList.
 
 Output Format:
 Return a PURE JSON string representing an array of objects. Do not wrap it in markdown code blocks.
@@ -32,51 +31,35 @@ If the user asks for episodes (e.g., "Top South Park episodes"), include the Sea
 export const searchMedia = async (query: string, apiKey: string): Promise<{ items: MediaItem[], sources: Source[] }> => {
   try {
     // Use provided API key or fall back to environment variable
-    const key = apiKey || process.env.API_KEY;
+    const key = apiKey || process.env.OPENAI_API_KEY;
     
     if (!key) {
-      throw new Error('Gemini API key is not configured. Please add it in Settings.');
+      throw new Error('OpenAI API key is not configured. Please add it in Settings.');
     }
 
-    // Initialize Gemini Client with the API key
-    const ai = new GoogleGenAI({ apiKey: key });
-
-    const modelId = "gemini-2.5-flash"; // Using 2.5 Flash for speed and grounding capability
+    const openai = new OpenAI({
+      apiKey: key,
+      dangerouslyAllowBrowser: true // Required for browser usage
+    });
 
     const prompt = `
     Find the following: "${query}".
-    Provide a ranked list with accurate ratings.
+    Provide a ranked list with accurate ratings from web sources.
     Return strictly a JSON array string.
     `;
 
-    const response = await ai.models.generateContent({
-      model: modelId,
-      contents: prompt,
-      config: {
-        systemInstruction: SYSTEM_INSTRUCTION,
-        tools: [{ googleSearch: {} }],
-        // responseSchema is NOT allowed with googleSearch, so we rely on system instruction for JSON format
-      },
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4o',
+      messages: [
+        { role: 'system', content: SYSTEM_INSTRUCTION },
+        { role: 'user', content: prompt }
+      ],
+      temperature: 0.7,
     });
 
-    // Extract Text
-    const text = response.text || "";
+    const text = response.choices[0]?.message?.content || '';
 
-    // Extract Grounding Metadata (Sources)
-    const sources: Source[] = [];
-    const chunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks;
-    if (chunks) {
-      chunks.forEach((chunk) => {
-        if (chunk.web?.uri) {
-          sources.push({
-            title: chunk.web.title || new URL(chunk.web.uri).hostname,
-            uri: chunk.web.uri
-          });
-        }
-      });
-    }
-
-    // Parse JSON manually since we couldn't use responseSchema
+    // Parse JSON manually
     let items: MediaItem[] = [];
     try {
       // Find JSON array brackets
@@ -107,13 +90,17 @@ export const searchMedia = async (query: string, apiKey: string): Promise<{ item
       throw new Error("We found the info, but couldn't format it correctly. Please try again.");
     }
 
-    // Deduplicate sources based on URI
-    const uniqueSources = Array.from(new Map(sources.map(s => [s.uri, s])).values());
+    // OpenAI doesn't provide grounding metadata like Gemini, so sources will be empty
+    // or we could extract from the response text if needed
+    const sources: Source[] = [];
 
-    return { items, sources: uniqueSources };
+    return { items, sources };
 
-  } catch (error) {
-    console.error("Gemini Search Error:", error);
-    throw error;
+  } catch (error: any) {
+    console.error("OpenAI Search Error:", error);
+    if (error.message) {
+      throw error;
+    }
+    throw new Error('Failed to search with OpenAI. Please check your API key and try again.');
   }
 };
