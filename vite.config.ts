@@ -10,8 +10,9 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [react()],
     define: {
-      // This allows 'process.env.API_KEY' to work in the browser code
+      // This allows 'process.env.API_KEY' and 'process.env.OPENAI_API_KEY' to work in the browser code
       'process.env.API_KEY': JSON.stringify(env.API_KEY),
+      'process.env.OPENAI_API_KEY': JSON.stringify(env.OPENAI_API_KEY),
     },
   }
 })

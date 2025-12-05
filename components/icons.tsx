@@ -64,3 +64,18 @@ export const AlertCircle = ({ className }: { className?: string }) => (
     <line x1="12" y1="16" x2="12.01" y2="16"></line>
   </svg>
 );
+
+export const SettingsIcon = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <circle cx="12" cy="12" r="3"></circle>
+    <path d="M12 1v6m0 6v6m-6-6H0m6 0h6m6 0h6"></path>
+    <path d="M19.07 4.93l-4.24 4.24M9.17 14.83l-4.24 4.24M4.93 4.93l4.24 4.24M14.83 14.83l4.24 4.24"></path>
+  </svg>
+);
+
+export const XIcon = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <line x1="18" y1="6" x2="6" y2="18"></line>
+    <line x1="6" y1="6" x2="18" y2="18"></line>
+  </svg>
+);
