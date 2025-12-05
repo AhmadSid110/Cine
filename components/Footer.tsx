@@ -1,5 +1,3 @@
-import React from 'react';
-
 export const Footer = () => (
   <footer className="w-full py-10 text-center text-zinc-600 text-xs mt-12 border-t border-zinc-900">
     <p>Powered by Google Gemini 2.5 Flash & Google Search Grounding</p>

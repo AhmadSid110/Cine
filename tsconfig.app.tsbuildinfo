@@ -1,0 +1,1 @@
+{"root":["./App.tsx","./index.tsx","./types.ts","./vite.config.ts","./components/Footer.tsx","./components/MediaCard.tsx","./components/SearchBar.tsx","./components/icons.tsx","./services/gemini.ts"],"version":"5.9.3"}

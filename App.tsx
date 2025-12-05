@@ -3,7 +3,7 @@ import { SearchBar } from './components/SearchBar.tsx';
 import { MediaCard } from './components/MediaCard.tsx';
 import { Footer } from './components/Footer.tsx';
 import { searchMedia } from './services/gemini.ts';
-import { MediaItem, SearchState } from './types.ts';
+import { SearchState } from './types.ts';
 import { AlertCircle } from './components/icons.tsx';
 
 const App: React.FC = () => {
